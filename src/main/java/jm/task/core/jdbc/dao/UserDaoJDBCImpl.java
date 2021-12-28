@@ -20,8 +20,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
         String table = "CREATE TABLE IF NOT EXISTS users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), lastName VARCHAR(20), age INT)";
-        try {
-            PreparedStatement statement = connection.prepareStatement(table);
+        try (PreparedStatement statement = connection.prepareStatement(table)) {
             statement.executeUpdate();
             System.out.println("Таблица успешно создана");
         } catch (SQLException e) {
@@ -31,8 +30,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         String table = "DROP TABLE IF EXISTS users";
-        try {
-            PreparedStatement statement = connection.prepareStatement(table);
+        try (PreparedStatement statement = connection.prepareStatement(table)) {
             statement.executeUpdate();
             System.out.println("Таблица успешно удалена");
         } catch (SQLException e) {
@@ -68,9 +66,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         String getAll = "SELECT * FROM users";
         List<User> allUsers = new ArrayList<>();
-        try (PreparedStatement preparedStatement = connection.prepareStatement(getAll)) {
-            connection.setAutoCommit(false);
-            ResultSet rez = preparedStatement.executeQuery();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(getAll); ResultSet rez = preparedStatement.executeQuery()) {
             while (rez.next()) {
                 Long id = rez.getLong("id");
                 String name = rez.getString("name");
@@ -78,7 +74,6 @@ public class UserDaoJDBCImpl implements UserDao {
                 byte age = rez.getByte("age");
                 allUsers.add(new User(id, name, lastName, age));
             }
-            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
